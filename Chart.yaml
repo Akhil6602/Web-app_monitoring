@@ -1,0 +1,11 @@
+apiVersion: v2
+name: web-app-with-monitoring
+description: Deploys static web app + Prometheus/Grafana/Loki
+version: 1.0.0
+dependencies:
+  - name: kube-prometheus-stack
+    version: 48.1.1
+    repository: https://prometheus-community.github.io/helm-charts
+  - name: loki-stack
+    version: 2.9.10
+    repository: https://grafana.github.io/helm-charts

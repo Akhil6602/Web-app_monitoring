@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+spec:
+  replicas: {{ .Values.webApp.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-web     # MUST match template.metadata.labels below
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-web   # MUST match selector.matchLabels above
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.webApp.port }}"
+    spec:
+      containers:
+      - name: web
+        image: {{ .Values.webApp.image }}
+        ports:
+        - containerPort: {{ .Values.webApp.port }}
+

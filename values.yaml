@@ -1,0 +1,73 @@
+webApp:
+  replicas: 3
+  image: akhil575/akhil_web_project:latest
+  port: 80
+  service:
+    type: NodePort
+    port: 80
+    nodePort: 30080
+
+# Grafana config
+kube-prometheus-stack:
+  grafana:
+    adminPassword: "admin"
+    service:
+      type: NodePort
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://web-app-monitoring-kube-pr-prometheus:9090
+            isDefault: true
+          - name: Loki
+            type: loki
+            access: proxy
+            url: http://web-app-monitoring-loki:3100
+            isDefault: false
+    dashboardsProvider:
+      enabled: true
+      configMaps:
+        - k8s-dashboards
+    dashboards:
+      default:
+        kubernetes:
+          gnetId: 315
+          revision: 4
+          datasource: Prometheus
+        loki-logs:
+          gnetId: 13639
+          revision: 1
+          datasource: Loki
+
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+    enabled: true
+    version: "48.1.1"
+
+  # ✅ Enable default exporters and metrics
+  nodeExporter:
+    enabled: true
+  kubelet:
+    enabled: true
+  kubeControllerManager:
+    enabled: true
+  kubeScheduler:
+    enabled: true
+  kubeProxy:
+    enabled: true
+
+# Loki and Promtail config
+loki-stack:
+  enabled: true
+  promtail:
+    enabled: true
+    config:
+      clients:
+        - url: http://web-app-monitoring-loki.web-app.svc.cluster.local:3100/loki/api/v1/push
+  config:
+    auth_enabled: false
+
